@@ -23,11 +23,9 @@
 # use CGI::Carp qw(fatalsToBrowser);
 use CGI;
 use LoxBerry::System;
-# use LoxBerry::Web;
-use LoxBerry::JSON; # Available with LoxBerry 2.0
-#require "$lbpbindir/libs/LoxBerry/JSON.pm";
+#use LoxBerry::IO;
+use LoxBerry::JSON;
 use LoxBerry::Log;
-use Time::HiRes qw ( sleep );
 use warnings;
 use strict;
 #use Data::Dumper;
@@ -50,6 +48,7 @@ my %L;
 
 # Globals 
 my $CFGFILE = $lbpconfigdir . "/config.json";
+my %pids;
 
 ##########################################################################
 # AJAX
@@ -61,22 +60,20 @@ system("chmod 0600 $lbpconfigdir/*.json");
 if( $q->{ajax} ) {
 	
 	## Logging for ajax requests
-	#$log = LoxBerry::Log->new (
-	#	name => 'AJAX',
-	#	filename => "$lbplogdir/ajax.log",
-	#	stderr => 1,
-	#	loglevel => 7,
-	#	addtime => 1,
-	#	append => 1,
-	#	nosession => 1,
-	#);
+	$log = LoxBerry::Log->new (
+		name => 'AJAX',
+		filename => "$lbplogdir/ajax.log",
+		stderr => 1,
+		loglevel => 7,
+		addtime => 1,
+		append => 1,
+		nosession => 1,
+	);
 	
 	LOGSTART "P$$ Ajax call: $q->{ajax}";
 	LOGDEB "P$$ Request method: " . $ENV{REQUEST_METHOD};
 	
 	## Handle all ajax requests 
-	#require JSON;
-	# require Time::HiRes;
 	my %response;
 	ajax_header();
 
@@ -147,6 +144,20 @@ if( $q->{ajax} ) {
 		print JSON->new->canonical(1)->encode(\%response) if !$content;
 	}
 
+	# GetPIDs
+	if( $q->{ajax} eq "getpids" ) {
+		LOGINF "P$$ getpids: getpids was called.";
+		pids();
+		$response{pids} = \%pids;
+		print JSON->new->canonical(1)->encode(\%response);
+	}
+
+	# Restart services
+	if( $q->{ajax} eq "restartbridge" ) {
+		$response{error} = &restartbridge();
+		print JSON->new->canonical(1)->encode(\%response);
+	}
+
 	exit;
 
 ##########################################################################
@@ -192,10 +203,10 @@ exit;
 
 
 ##########################################################################
-# Form: BRIDGES
+# Form: LANDROID
 ##########################################################################
 
-sub form_labcom
+sub form_landroid
 {
 	$template->param("FORM_LANDROID", 1);
 	return();
@@ -209,6 +220,17 @@ sub form_labcom
 sub form_mqtt
 {
 	$template->param("FORM_MQTT", 1);
+	return();
+}
+
+
+##########################################################################
+# Form: UPGRADE
+##########################################################################
+
+sub form_upgrade
+{
+	$template->param("FORM_UPGRADE", 1);
 	return();
 }
 
@@ -240,7 +262,11 @@ sub form_print
 	$navbar{30}{Name} = "$L{'COMMON.LABEL_MQTT'}";
 	$navbar{30}{URL} = 'index.cgi?form=mqtt';
 	$navbar{30}{active} = 1 if $q->{form} eq "mqtt";
-	
+
+	$navbar{40}{Name} = "$L{'COMMON.LABEL_UPGRADE'}";
+	$navbar{40}{URL} = 'index.cgi?form=upgrade';
+	$navbar{40}{active} = 1 if $q->{form} eq "upgrade";
+
 	$navbar{99}{Name} = "$L{'COMMON.LABEL_LOG'}";
 	$navbar{99}{URL} = 'index.cgi?form=log';
 	$navbar{99}{active} = 1 if $q->{form} eq "log";
@@ -285,11 +311,20 @@ sub savemqtt
 {
 	my $errors;
 	my $jsonobj = LoxBerry::JSON->new();
-	my $jsonobjcred = LoxBerry::JSON->new();
-	my $jsonobjcfg = LoxBerry::JSON->new();
-	my $mqttplugindata = LoxBerry::System::plugindata("mqttgateway");
 	my $cfg = $jsonobj->open(filename => $CFGFILE);
-	$cfg->{topic} = $q->{topic};
+	my $i = 0;
+	$q->{topic} = "landroid" if ( $q->{topic} eq "" ) ;
+	foreach ( @{$cfg->{'mower'}} ) {
+		$cfg->{'mower'}[$i]->{'topic'} = $q->{topic};
+		$i++;
+	}
+	#my $mqttcred = LoxBerry::IO::mqtt_connectiondetails();
+	#my $cred;
+	#if ( $mqttcred->{brokeruser} && $mqttcred->{brokerpass} ) {
+	#	$cred = "$mqttcred->{brokeruser}" . ":" . $mqttcred->{brokerpass} . "@";
+	#}
+	#my $mqtturl = "mqtt://" . $cred . $mqttcred->{brokeraddress};
+	#$cfg->{'mqtt'}->{'url'} = $mqtturl;
 	$jsonobj->write();
 	
 	# Save mqtt_subscriptions.cfg for MQTT Gateway
@@ -311,11 +346,47 @@ sub savelandroid
 	my $errors;
 	my $jsonobj = LoxBerry::JSON->new();
 	my $cfg = $jsonobj->open(filename => $CFGFILE);
-	$cfg->{token} = $q->{token};
-	$cfg->{accountid} = $q->{accountid};
+	$cfg->{cloud}->{email} = $q->{login};
+	$cfg->{cloud}->{pwd} = $q->{password};
+	$cfg->{cloud}->{type} = $q->{type};
+	my  @serials = split /\n/, $q->{serials};
+	my $topic;
+	$topic = $cfg->{'mower'}[0]->{'topic'} if ($cfg->{'mower'}[0]->{'topic'});
+	$topic = "landroid" if (!$topic);
+	my @mowers;
+	foreach ( @serials ) {
+		next if $_ eq "";
+		my %mower = (
+			sn => "$_",
+			topic => "$topic",
+		);
+		push @mowers, \%mower;
+	}
+	$cfg->{mower} = \@mowers;
 	$jsonobj->write();
-	
 	return ($errors);
+}
+
+sub pids
+{
+	$pids{'bridge'} = trim(`pgrep -f mqtt-landroid-bridge/bridge.js`) ;
+	return();
+}
+
+sub restartbridge
+{
+
+	# Restart services from WebUI
+	my $errors;
+	eval {
+		system("$lbpbindir/watchdog.pl --action=restart >/dev/null 2>&1");
+	};
+	if ($@) {
+		$errors++;
+	}
+
+	return ($errors);
+
 }
 
 END {

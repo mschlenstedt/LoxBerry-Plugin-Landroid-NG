@@ -1,0 +1,17 @@
+{
+   "cloud" : {
+      "email" : "your@mail.com",
+      "pwd" : "yourTOPsecretpass",
+      "type" : "worx"
+   },
+   "logLevel" : "error",
+   "mower" : [
+      {
+         "sn" : "",
+         "topic" : "landroid"
+      }
+   ],
+   "mqtt" : {
+      "url" : "mqtt://loxberry:loxberry@localhost:1883"
+   }
+}

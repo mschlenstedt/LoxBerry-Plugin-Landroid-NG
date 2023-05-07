@@ -65,25 +65,36 @@
 </style>
 
 <!-- ****************************************************************************************** -->
-		
-<TMPL_IF FORM_LANDROID>
-
 	<div id="main" style="visibility:hidden"> <!-- style="display:none;" --> 
-		
+
+		<center>
+		<div style="display:flex;align-items:center;justify-content:center;width:100%">
+			<center>
+			<span id="bridgestate"></span>
+			&nbsp; &nbsp; &nbsp; &nbsp;
+			<a href="javascript:restartBridge();" id="btnrestartbridge" data-role="button" data-inline="true" data-icon="refresh" data-mini="true"
+						data-transition="flow"><TMPL_VAR COMMON.BUTTON_RESTART></a>
+			</center>
+		</div>
+		</center>
+		<hr>
+		<br>
+
+<TMPL_IF FORM_LANDROID>
 		<form>
 		
 		<div class="lb_flex-container LANDROID ui-state-disabled">
 			<div	class="lb_flex-item-label">
 				<label	class=	"control-label"
-					for="token"><TMPL_VAR LANDROID.LABEL_TOKEN></label>
+					for="login"><TMPL_VAR LANDROID.LABEL_LOGIN></label>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 			<div	class="lb_flex-item">
-				<input width="100%" value="" id="token" name="token" type="text" class="textfield">
+				<input width="100%" value="" id="login" name="login" type="text" class="textfield">
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 			<div	class="lb_flex-item-help hint">
-				<TMPL_VAR LANDROID.HINT_TOKEN>
+				<TMPL_VAR LANDROID.HINT_LOGIN>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 		</div>
@@ -91,15 +102,51 @@
 		<div class="lb_flex-container LANDROID ui-state-disabled">
 			<div	class="lb_flex-item-label">
 				<label	class=	"control-label"
-					for="accountid"><TMPL_VAR LANDROID.LABEL_ACCOUNTID></label>
+					for="password"><TMPL_VAR LANDROID.LABEL_PASSWORD></label>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 			<div	class="lb_flex-item">
-				<input width="100%" value="" id="accountid" name="accountid" type="text" class="textfield">
+				<input width="100%" value="" id="password" name="password" type="text" class="textfield">
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 			<div	class="lb_flex-item-help hint">
-				<TMPL_VAR LANDROID.HINT_ACCOUNTID>
+				<TMPL_VAR LANDROID.HINT_PASSWORD>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+		</div>
+
+		<div class="lb_flex-container LANDROID ui-state-disabled">
+			<div	class="lb_flex-item-label">
+				<label	class=	"control-label"
+					for="type"><TMPL_VAR LANDROID.LABEL_TYPE></label>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item">
+				<select name="typr" id="type">
+					<option value="worx"><TMPL_VAR LANDROID.LABEL_WORX></option>
+					<option value="landxcape"><TMPL_VAR LANDROID.LABEL_LANDXCAPE></option>
+					<option value="kress"><TMPL_VAR LANDROID.LABEL_KRESS></option>
+				</select>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item-help hint">
+				<TMPL_VAR LANDROID.HINT_TYPE>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+		</div>
+
+		<div class="lb_flex-container LANDROID ui-state-disabled">
+			<div	class="lb_flex-item-label">
+				<label	class=	"control-label"
+					for="serials"><TMPL_VAR LANDROID.LABEL_SERIALS></label>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item">
+				<textarea width="100%" name="serials" id="serials"></textarea>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item-help hint">
+				<TMPL_VAR LANDROID.HINT_SERIALS>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 		</div>
@@ -113,8 +160,6 @@
 			<div	class="lb_flex-item">
 			<a href="javascript:saveLANDROID();" id="btnsavelandroid" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check ui-btn-inline" 
 					data-transition="flow" data-inline="true"><TMPL_VAR LANDROID.BUTTON_SAVE></a>
-			<a href="javascript:testLANDROID();" id="btntestlandroid" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-action ui-btn-inline" 
-					data-transition="flow" data-inline="true"><TMPL_VAR LANDROID.BUTTON_TEST></a>
 			<div class="hint" id="landroid_hint">&nbsp;</div>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
@@ -132,19 +177,16 @@
 <!-- ****************************************************************************************** -->
 
 <TMPL_IF FORM_MQTT>
-
-	<div id="main" style="visibility:hidden"> <!-- style="display:none;" --> 
-
 		<form>
 		
 		<div class="lb_flex-container MQTT">
 			<div	class="lb_flex-item-label">
 				<label	class=	"control-label"
-					for="MQTTTopic"><TMPL_VAR MQTT.LABEL_MQTTTopic></label>
+					for="topic"><TMPL_VAR MQTT.LABEL_MQTTTopic></label>
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
 			<div	class="lb_flex-item">
-				<input width="100%" value="" id="MQTTTopic" name="MQTTTopic" type="text" class="textfield" 
+				<input width="100%" value="" id="topic" name="topic" type="text" class="textfield" 
 				data-validation-rule="^(?!.*//.*)[^\+#]+$" data-validation-error-msg="<TMPL_VAR MQTT.MSG_VALINVALID_MQTTTOPIC>">
 			</div>
 			<div	class="lb_flex-item-spacer"></div>
@@ -199,6 +241,8 @@ var formlog = '<TMPL_VAR FORM_LOG>';
 
 var secpin = null;
 
+var nopidrefresh = "0";
+
 $(function() {
 	
 	if(secpin == null) {
@@ -210,6 +254,9 @@ $(function() {
 		securePINwrong();
 	}
 
+	setInterval(function(){ update_pids(); }, 3000);
+	update_pids();
+
 	getconfig();
 	
 	// Check SecurePIN by ajax and load form data
@@ -220,6 +267,38 @@ $(function() {
 
 });
 
+// UPdate PIDs
+function update_pids()
+{
+
+	if (nopidrefresh === "1") {
+		return;
+	}
+
+	$.ajax( {
+		type: 'POST',
+			data: {
+				ajax: 'getpids',
+				secpin: secpin
+			}
+		} )
+	.done(function(resp) {
+		console.log( "getpids", "success", resp );
+		if(resp.pids.bridge != null) {
+			$("#bridgestate").attr("style", "color:green").html("<TMPL_VAR COMMON.MSG_BRIDGE_RUNNING> (PID "+resp.pids.bridge+")");
+		} else {
+			$("#bridgestate").attr("style", "color:red").html("<TMPL_VAR COMMON.MSG_BRIDGE_NOTRUNNING>");
+		}
+	})
+	.fail(function(resp) {
+		$("#bridgestate").attr("style", "color:red").html("<TMPL_VAR COMMON.MSG_FAILED_PID>");
+	})
+	.always(function(resp) {
+		console.log( "getpids", "finished", resp );
+	});
+
+}
+
 // Save MQTT Settings
 function saveMQTT() {
 	$("#mqtt_hint").attr("style", "color:blue").html("<TMPL_VAR MQTT.HINT_SAVE_SAVING>");
@@ -228,7 +307,7 @@ function saveMQTT() {
 			type: 'POST',
 			data: { 
 				ajax: 'savemqtt', 
-				topic: $('#MQTTTopic').val(),
+				topic: $('#topic').val(),
 				secpin: secpin
 			}
 		} )
@@ -253,13 +332,14 @@ function saveMQTT() {
 // Save LANDROID Settings
 function saveLANDROID() {
 	$("#landroid_hint").attr("style", "color:blue").html("<TMPL_VAR LANDROID.HINT_SAVE_SAVING>");
-	console.log ("Saving", $('#token').val(), $('#accountid').val());
 	$.ajax( { 
 			type: 'POST',
 			data: { 
 				ajax: 'savelandroid', 
-				token: $('#token').val(),
-				accountid: $('#accountid').val(),
+				login: $('#login').val(),
+				password: $('#password').val(),
+				type: $('#type').val(),
+				serials: $('#serials').val(),
 				secpin: secpin
 			}
 		} )
@@ -275,32 +355,6 @@ function saveLANDROID() {
 		}
 		$("#landroid_hint").attr("style", "color:green").html("<TMPL_VAR LANDROID.HINT_SAVE_OK>");
 		getconfig();
-	})
-	.always(function( data ) {
-		console.log( "savelandroid Finished" );
-	});
-}
-
-// Test LANDROID Settings
-function testLANDROID() {
-	console.log ("Testing", $('#token').val(), $('#accountid').val());
-	$("#landroid_hint").attr("style", "color:blue").html("<TMPL_VAR LANDROID.HINT_TEST_WAIT>");
-	$.ajax( { 
-			type: 'POST',
-			data: { 
-				ajax: 'testlandroid', 
-				token: $('#token').val(),
-				accountid: $('#accountid').val(),
-				secpin: secpin
-			}
-		} )
-	.fail(function( data ) {
-		console.log( "savelandroid Fail", data );
-	})
-	.done(function( data ) {
-		console.log( "savelandroid Success: ", data );
-		window.open("/admin/system/tools/logfile.cgi?logfile=plugins/landroid/test.log&header=html&format=template&only=once");
-		$("#landroid_hint").html("");
 	})
 	.always(function( data ) {
 		console.log( "savelandroid Finished" );
@@ -352,12 +406,37 @@ function securePINwrong() {
 	return;
 }
 
+// Restart Bridge
+function restartBridge() {
+	console.log ("Restart Bridge");
+	$("#bridgestate").attr("style", "color:blue").html("<TMPL_VAR COMMON.MSG_BRIDGE_REFRESH>");
+	nopidrefresh = "1";
+	$.ajax( {
+			type: 'POST',
+			data: {
+				ajax: 'restartbridge',
+				secpin: secpin
+			}
+		} )
+	.fail(function( data ) {
+		console.log( "Restart Bridge Fail", data );
+	})
+	.done(function( data ) {
+		console.log( "Restart Bridge Success: ", data );
+		update_pids();
+	})
+	.always(function( data ) {
+		console.log( "Restart Bridge Finished" );
+		nopidrefresh = "0";
+	});
+}
+
 // Get Config
 function getconfig() {
 	// Get Config
 	
 	if ( formlandroid ) {
-		console.log( "Get Config for LabCom form" );
+		console.log( "Get Config for Landroid form" );
 		var form = 'config'; // This will be changed to config.json later on in CGI
 	}
 	if ( formmqtt ) {
@@ -395,29 +474,47 @@ function getconfig() {
 				if ( data.error || jQuery.isEmptyObject(data)) {
 					console.log("config.json is empty, does not exist or is invalid.");
 				}
-				if(data.topic) {
-					$("#MQTTTopic").val(data.topic);
+				if(data.mower[0].topic) {
+					$("#topic").val(data.mower[0].topic);
 				} else {
-					$("#MQTTTopic").val('landroid');
+					$("#topic").val('landroid');
 				}
 			};
 
 			if ( formlandroid ) {
-				console.log( "Parse Item for LabCom form" );
+				console.log( "Parse Item for Landroid form" );
 				// Fill the form with json data retrieved from the ajax getconfig call
 				if ( data.error || jQuery.isEmptyObject(data)) {
 					console.log("config.json is empty, does not exist or is invalid.");
 				}
-				if(data.token) {
-					$("#token").val(data.token);
+				if(data.cloud.email) {
+					$("#login").val(data.cloud.email);
 				} else {
-					$("#token").val('');
+					$("#login").val('');
 				}
-				if(data.accountid) {
-					$("#accountid").val(data.accountid);
+				if(data.cloud.pwd) {
+					$("#password").val(data.cloud.pwd);
 				} else {
-					$("#accountid").val('0');
+					$("#password").val('');
 				}
+				if (data.cloud.type === "worx") {
+					$("#type").val("worx").change();
+				} else if (data.cloud.type === "landxcape") {
+					$("#type").val("landxcape").change();
+				} else if (data.cloud.type === "kress") {
+					$("#type").val("kress").change();
+				} 
+				var serials = "";
+				$(data.mower).each(function(i,val) {
+					$.each(val, function(key, value) {
+						if (key === "sn") {
+							serials = serials + value + "\n";
+						}
+					});
+				});
+				serials = serials.replace(/\s+$/g, '');
+				$("#serials").val(serials.toString());
+				$("#serials").trigger('change');
 				$(".LANDROID").removeClass("ui-state-disabled");
 			};
 		})
