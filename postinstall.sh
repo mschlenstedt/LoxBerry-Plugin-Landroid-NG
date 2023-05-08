@@ -45,7 +45,22 @@ PSBIN=$LBPSBIN/$PDIR
 PBIN=$LBPBIN/$PDIR
  
 echo "<INFO> Installing latest Worx Bridge"
-$PBIN/upgrade_bridge.sh
+
+repo="mschlenstedt/mqtt-landroid-bridge"
+
+repourl="https://github.com/$repo.git"
+rm -rf $PDATA/mqtt-landroid-bridge
+git clone $repourl $PDATA/mqtt-landroid-bridge 2>&1
+
+# Symlink config
+echo "<INFO> Symlinking config file..."
+rm $PDATA/mqtt-landroid-bridge/config.json
+ln -sv $PCONFIG/config.json $PDATA/mqtt-landroid-bridge/config.json 2>&1
+
+# Install
+LOGINF "Installing..."
+cd $PDATA/mqtt-landroid-bridge
+npm install 2>&1
 
 # Exit with Status 0
 exit 0
