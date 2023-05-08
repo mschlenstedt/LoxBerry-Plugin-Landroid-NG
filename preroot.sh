@@ -41,6 +41,19 @@ nodeverfull=$(node -v)
 
 if [[ $nodevermain < 15 ]]; then
 	echo "<INFO> Current NodeJS Version is: $nodeverfull - Upgrade needed."
+	# Repair broken Python on old Raspbians
+	if [[ -e "/usr/share/pyshared/lsb_release.py" ]]; then
+		for d in /usr/local/lib/python3*/; do
+			if [[ ! -e "${d}lsb_release.py" ]]; then
+			        ln -vs /usr/share/pyshared/lsb_release.py ${d}lsb_release.py
+			fi
+		done
+		for d in /usr/lib/python3*/; do
+			if [[ ! -e "${d}lsb_release.py" ]]; then
+			        ln -vs /usr/share/pyshared/lsb_release.py ${d}lsb_release.py
+			fi
+		done
+	fi
 	curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 else
 	echo "<OK> Current NodeJS Version is: $nodeverfull - this is fine for me."
