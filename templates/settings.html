@@ -73,6 +73,8 @@
 			&nbsp; &nbsp; &nbsp; &nbsp;
 			<a href="javascript:restartBridge();" id="btnrestartbridge" data-role="button" data-inline="true" data-icon="refresh" data-mini="true"
 						data-transition="flow"><TMPL_VAR COMMON.BUTTON_RESTART></a>
+			<a href="javascript:stopBridge();" id="btnrestopbridge" data-role="button" data-inline="true" data-icon="delete" data-mini="true"
+						data-transition="flow"><TMPL_VAR COMMON.BUTTON_STOP></a>
 			</center>
 		</div>
 		</center>
@@ -552,6 +554,28 @@ function restartBridge() {
 	.always(function( data ) {
 		console.log( "Restart Bridge Finished" );
 		nopidrefresh = "0";
+	});
+}
+
+// Stop Bridge
+function stopBridge() {
+	console.log ("Stop Bridge");
+	$.ajax( {
+			type: 'POST',
+			data: {
+				ajax: 'stopbridge',
+				secpin: secpin
+			}
+		} )
+	.fail(function( data ) {
+		console.log( "Stop Bridge Fail", data );
+	})
+	.done(function( data ) {
+		console.log( "Stop Bridge Success: ", data );
+		update_pids();
+	})
+	.always(function( data ) {
+		console.log( "Stop Bridge Finished" );
 	});
 }
 

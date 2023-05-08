@@ -174,6 +174,12 @@ if( $q->{ajax} ) {
 		print JSON->new->canonical(1)->encode(\%response);
 	}
 
+	# Stop services
+	if( $q->{ajax} eq "stopbridge" ) {
+		$response{error} = &stopbridge();
+		print JSON->new->canonical(1)->encode(\%response);
+	}
+
 	exit;
 
 ##########################################################################
@@ -410,6 +416,22 @@ sub restartbridge
 	my $errors;
 	eval {
 		system("$lbpbindir/watchdog.pl --action=restart >/dev/null 2>&1");
+	};
+	if ($@) {
+		$errors++;
+	}
+
+	return ($errors);
+
+}
+
+sub stopbridge
+{
+
+	# Restart services from WebUI
+	my $errors;
+	eval {
+		system("$lbpbindir/watchdog.pl --action=stop >/dev/null 2>&1");
 	};
 	if ($@) {
 		$errors++;

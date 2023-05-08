@@ -166,6 +166,8 @@ sub stop
 	LOGINF "Stopping Bridge...";
 	system ("pkill -f mqtt-landroid-bridge/bridge.js");
 
+	my $response = LoxBerry::System::write_file("$lbpconfigdir/bridge_stopped.cfg", "1");
+
 	LOGOK "Done.";
 
 	return(0);
@@ -188,6 +190,11 @@ sub check
 {
 
 	LOGINF "CHECK called...";
+
+	if (-e  "$lbpconfigdir/bridge_stopped.cfg") {
+		LOGOK "Bridge was stopped manually. Nothing to do.";
+		return(0);
+	}
 	
 	# Creating tmp file with failed checks
 	if (!-e "/dev/shm/landroid-ng-watchdog-fails.dat") {
