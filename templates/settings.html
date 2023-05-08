@@ -64,7 +64,6 @@
 
 </style>
 
-<!-- ****************************************************************************************** -->
 	<div id="main" style="visibility:hidden"> <!-- style="display:none;" --> 
 
 		<center>
@@ -79,6 +78,8 @@
 		</center>
 		<hr>
 		<br>
+
+<!-- ****************************************************************************************** -->
 
 <TMPL_IF FORM_LANDROID>
 		<form>
@@ -218,8 +219,69 @@
 	
 		<script>
 			// Validation
-			validate_enable('#MQTTTopic');
+			validate_enable('#topic');
 		</script>
+	
+	</div>
+
+</TMPL_IF>
+
+<!-- ****************************************************************************************** -->
+
+<TMPL_IF FORM_UPGRADE>
+
+		<center>
+		<p><TMPL_VAR UPGRADE.HINT_LIB></p>
+		</center>
+		<br><br>
+		<form>
+		
+		<div class="lb_flex-container UPGRADE ui-state-disabled">
+			<div	class="lb_flex-item-label">
+				<TMPL_VAR UPGRADE.LABEL_CURRENT>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item">
+				<span id="currentversion"></span>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item-help hint">
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+		</div>
+
+		<div class="lb_flex-container UPGRADE ui-state-disabled">
+			<div	class="lb_flex-item-label">
+				<TMPL_VAR UPGRADE.LABEL_ONLINE>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item">
+				<span id="availableversion"></span>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item-help hint">
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+		</div>
+
+		<div style="padding: 0px 0px 20px 0px;"></div>
+	
+		<div class="lb_flex-container UPGRADE">
+			<div	class="lb_flex-item-label">
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item">
+			<a href="javascript:upgradeLib();" id="btnupgradelib" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check ui-btn-inline" 
+					data-transition="flow" data-inline="true"><TMPL_VAR UPGRADE.BUTTON_SAVE></a>
+			<div class="hint" id="upgrade_hint">&nbsp;</div>
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+			<div	class="lb_flex-item-help hint">
+			</div>
+			<div	class="lb_flex-item-spacer"></div>
+		</div>
+		
+		</form>
 	
 	</div>
 
@@ -235,6 +297,7 @@
 
 <script>
 // Main form
+var formupgrade = '<TMPL_VAR FORM_UPGRADE>';
 var formmqtt = '<TMPL_VAR FORM_MQTT>';
 var formlandroid = '<TMPL_VAR FORM_LANDROID>';
 var formlog = '<TMPL_VAR FORM_LOG>';
@@ -257,6 +320,10 @@ $(function() {
 	setInterval(function(){ update_pids(); }, 3000);
 	update_pids();
 
+	if (formupgrade) {
+		update_ver();
+	}
+
 	getconfig();
 	
 	// Check SecurePIN by ajax and load form data
@@ -267,7 +334,7 @@ $(function() {
 
 });
 
-// UPdate PIDs
+// Update PIDs
 function update_pids()
 {
 
@@ -297,6 +364,63 @@ function update_pids()
 		console.log( "getpids", "finished", resp );
 	});
 
+}
+
+// Update Lib Versions
+function update_ver()
+{
+	$("#currentversion").html("<TMPL_VAR COMMON.HINT_PLEASE_WAIT>");
+	$("#availableversion").html("<TMPL_VAR COMMON.HINT_PLEASE_WAIT>");
+
+	$.ajax( {
+		type: 'POST',
+			data: {
+				ajax: 'getversions',
+				secpin: secpin
+			}
+		} )
+	.done(function(resp) {
+		console.log( "getversions", "success", resp );
+		$("#currentversion").html(resp.versions.current);
+		$("#availableversion").html(resp.versions.available);
+		$(".UPGRADE").removeClass("ui-state-disabled");
+	})
+	.fail(function(resp) {
+		console.log( "getversions", "fail", resp );
+	})
+	.always(function(resp) {
+		console.log( "getversions", "finished", resp );
+	});
+
+}
+
+// Do Lib Upgrade
+function upgradeLib() {
+	$("#upgrade_hint").attr("style", "color:blue").html("<TMPL_VAR UPGRADE.HINT_SAVE_SAVING>");
+	console.log ("Upgrading Library");
+	$.ajax( { 
+			type: 'POST',
+			data: { 
+				ajax: 'upgradelib', 
+				secpin: secpin
+			}
+		} )
+	.fail(function( data ) {
+		console.log( "upgradelib Fail", data );
+		$("#upgrade_hint").attr("style", "color:red").html("<TMPL_VAR UPGRADE.HINT_SAVE_ERROR>: "+data.statusText);
+	})
+	.done(function( data ) {
+		console.log( "upgradelib Success: ", data );
+		if(data.secpinerror) {
+			securePINwrong();
+			return;
+		}
+		$("#upgrade_hint").attr("style", "color:green").html("<TMPL_VAR UPGRADE.HINT_SAVE_OK>");
+		update_ver();
+	})
+	.always(function( data ) {
+		console.log( "upgradelib Finished" );
+	});
 }
 
 // Save MQTT Settings
@@ -444,7 +568,7 @@ function getconfig() {
 		var form = 'config'; // This will be changed to config.json later on in CGI
 	}
 	if ( formlog ) {
-		console.log( "Get Config for LOG form" );
+		console.log( "Get Config for form not needed" );
 		$("#main").css( 'visibility', 'visible' );
 		$("#securepin_block").css( 'display', 'none' );
 		// No need to fetch config

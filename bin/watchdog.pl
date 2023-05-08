@@ -137,12 +137,6 @@ sub start
 		$jsonobj->write();
 	}
 
-	# Do not start bridge of unconfigured
-	if ( $cfg->{'cloud'}->{'email'} eq "your\@mail.com" ) {
-		LOGiERR "The Bridge is unconfigured. Please make your settings and restart.";
-		return(1);
-	}
-
 	LOGINF "START called...";
 	LOGINF "Starting Bridge...";
 	# Logging for Bridge

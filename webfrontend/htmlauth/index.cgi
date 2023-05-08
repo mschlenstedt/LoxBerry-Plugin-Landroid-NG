@@ -49,6 +49,7 @@ my %L;
 # Globals 
 my $CFGFILE = $lbpconfigdir . "/config.json";
 my %pids;
+my %versions;
 
 ##########################################################################
 # AJAX
@@ -114,6 +115,13 @@ if( $q->{ajax} ) {
 		$response{error} = &savelandroid();
 		print JSON->new->canonical(1)->encode(\%response);
 	}
+
+	# Upgrade Lib
+	if( $q->{ajax} eq "upgradelib" ) {
+		LOGINF "P$$ upgradelib: upgradelib was called.";
+		$response{error} = &upgradelib();
+		print JSON->new->canonical(1)->encode(\%response);
+	}
 	
 	# Get config
 	if( $q->{ajax} eq "getconfig" ) {
@@ -149,6 +157,14 @@ if( $q->{ajax} ) {
 		LOGINF "P$$ getpids: getpids was called.";
 		pids();
 		$response{pids} = \%pids;
+		print JSON->new->canonical(1)->encode(\%response);
+	}
+
+	# GetVersions
+	if( $q->{ajax} eq "getversions" ) {
+		LOGINF "P$$ getversions: getversions was called.";
+		versions();
+		$response{versions} = \%versions;
 		print JSON->new->canonical(1)->encode(\%response);
 	}
 
@@ -193,6 +209,7 @@ if( $q->{ajax} ) {
 
 	if ($q->{form} eq "landroid") { &form_landroid() }
 	elsif ($q->{form} eq "mqtt") { &form_mqtt() }
+	elsif ($q->{form} eq "upgrade") { &form_upgrade() }
 	elsif ($q->{form} eq "log") { &form_log() }
 
 	# Print the form
@@ -371,6 +388,19 @@ sub pids
 {
 	$pids{'bridge'} = trim(`pgrep -f mqtt-landroid-bridge/bridge.js`) ;
 	return();
+}
+
+sub versions
+{
+	$versions{'current'} = execute("$lbpbindir/upgrade_bridge.sh current");
+	$versions{'available'} = execute("$lbpbindir/upgrade_bridge.sh available");
+	return();
+}
+
+sub upgradelib
+{
+	my ($exitcode, $output) = execute("$lbpbindir/upgrade_bridge.sh");
+	return($exitcode);
 }
 
 sub restartbridge

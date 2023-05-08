@@ -12,6 +12,7 @@
       }
    ],
    "mqtt" : {
-      "url" : "mqtt://loxberry:loxberry@localhost:1883"
+      "url" : "mqtt://loxberry:loxberry@localhost:1883",
+      "subtopics": true
    }
 }
