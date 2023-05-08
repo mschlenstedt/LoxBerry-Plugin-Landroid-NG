@@ -106,6 +106,10 @@ exit;
 sub start
 {
 
+	if (-e  "$lbpconfigdir/bridge_stopped.cfg") {
+		unlink("$lbpconfigdir/bridge_stopped.cfg");
+	}
+
 	# Save defaults
 	my $mqttcred = LoxBerry::IO::mqtt_connectiondetails();
 	my $cred;
