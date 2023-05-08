@@ -58,7 +58,7 @@ rm $PDATA/mqtt-landroid-bridge/config.json
 ln -sv $PCONFIG/config.json $PDATA/mqtt-landroid-bridge/config.json 2>&1
 
 # Install
-LOGINF "Installing..."
+echo "<INFO> Installing..."
 cd $PDATA/mqtt-landroid-bridge
 npm install 2>&1
 
