@@ -27,6 +27,7 @@ use LoxBerry::IO;
 use Net::MQTT::Simple;
 use LoxBerry::JSON;
 use LoxBerry::Log;
+use Scalar::Util qw(looks_like_number);
 use warnings;
 use strict;
 #use Data::Dumper;
@@ -98,6 +99,16 @@ elsif( $q->{do} eq "set_reboot" ) {
 	&mqttconnect();
 	my $command = '{"cmd":7}';
 	$response = &mqttpublish($command);
+}
+elsif( $q->{do} eq "partymode" ) {
+	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 2  ) {
+		$error = "Parameter value not defined or not a number or range not valid";
+	} else {
+		&mqttconnect();
+		$q->{value} = $q->{value} * 1; # Convert to numeric
+		my $command = '{"sc": { "m":' . $q->{value} . '}}';
+		$response = &mqttpublish($command);
+	}
 }
 elsif( $q->{do} eq "get_status" ) {
 	my $statusfile = "/dev/shm/mqttfinder.json";
