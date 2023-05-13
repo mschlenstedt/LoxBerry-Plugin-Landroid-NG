@@ -110,6 +110,16 @@ elsif( $q->{do} eq "partymode" ) {
 		$response = &mqttpublish($command);
 	}
 }
+elsif( $q->{do} eq "raindelay" ) {
+	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 300  ) {
+		$error = "Parameter value not defined or not a number or range not valid";
+	} else {
+		&mqttconnect();
+		$q->{value} = $q->{value} * 1; # Convert to numeric
+		my $command = '{"rd":' . $q->{value} . '}';
+		$response = &mqttpublish($command);
+	}
+}
 elsif( $q->{do} eq "get_status" ) {
 	my $statusfile = "/dev/shm/mqttfinder.json";
 	my $statusjsonobj = LoxBerry::JSON->new();
