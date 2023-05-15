@@ -179,7 +179,7 @@ elsif( $q->{do} eq "get_status" ) {
 		$responseraw = $status->{'incoming'}->{$topic . "/" . $q->{serial} . "/mowerdata"}->{'p'};
 	}
 	if (!$responseraw) {
-		$response = to_json( { error => "Could not read MQTT finder data." } );
+		$response = to_json( { error => "Could not read MQTT finder data. Available from LoxBerry 3.0 on." } );
 	}
 }
 
