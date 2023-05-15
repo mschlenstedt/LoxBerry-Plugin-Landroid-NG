@@ -100,7 +100,43 @@ elsif( $q->{do} eq "set_reboot" ) {
 	my $command = '{"cmd":7}';
 	$response = &mqttpublish($command);
 }
-elsif( $q->{do} eq "partymode" ) {
+elsif( $q->{do} eq "set_areacfg" ) {
+	my @values = split /,/, $q->{value};
+	my $i = 0;
+	foreach ( @values ) {
+		$i++;
+		if ( !looks_like_number($_) || $_ < 0 || $_ > 500  ) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		}
+	}
+	if ($i ne 4) {
+		$error = "Parameter value not defined or not a number or range not valid";
+	}
+	if ($error eq "") {
+		&mqttconnect();
+		my $command = '{"mz": [ ' . $q->{value} . ' ]}';
+		$response = &mqttpublish($command);
+	}
+}
+elsif( $q->{do} eq "set_startsequences" ) {
+	my @values = split /,/, $q->{value};
+	my $i = 0;
+	foreach ( @values ) {
+		$i++;
+		if ( !looks_like_number($_) || $_ < 0 || $_ > 3  ) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		}
+	}
+	if ($i ne 10) {
+		$error = "Parameter value not defined or not a number or range not valid";
+	}
+	if ($error eq "") {
+		&mqttconnect();
+		my $command = '{"mzv": [ ' . $q->{value} . ' ]}';
+		$response = &mqttpublish($command);
+	}
+}
+elsif( $q->{do} eq "set_partymode" ) {
 	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 2  ) {
 		$error = "Parameter value not defined or not a number or range not valid";
 	} else {
@@ -110,7 +146,7 @@ elsif( $q->{do} eq "partymode" ) {
 		$response = &mqttpublish($command);
 	}
 }
-elsif( $q->{do} eq "partymodetime" ) {
+elsif( $q->{do} eq "set_partymodetime" ) {
 	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 1440  ) {
 		$error = "Parameter value not defined or not a number or range not valid";
 	} else {
@@ -120,7 +156,7 @@ elsif( $q->{do} eq "partymodetime" ) {
 		$response = &mqttpublish($command);
 	}
 }
-elsif( $q->{do} eq "raindelay" ) {
+elsif( $q->{do} eq "set_raindelay" ) {
 	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 300  ) {
 		$error = "Parameter value not defined or not a number or range not valid";
 	} else {
