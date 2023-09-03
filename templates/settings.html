@@ -622,8 +622,8 @@ function getconfig() {
 				if ( data.error || jQuery.isEmptyObject(data)) {
 					console.log("config.json is empty, does not exist or is invalid.");
 				}
-				if(data.mower[0].topic) {
-					$("#topic").val(data.mower[0].topic);
+				if(data.mqtt.topic) {
+					$("#topic").val(data.mqtt.topic);
 				} else {
 					$("#topic").val('landroid');
 				}
