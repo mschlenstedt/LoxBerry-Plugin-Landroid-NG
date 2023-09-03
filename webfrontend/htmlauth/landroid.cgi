@@ -182,6 +182,12 @@ elsif( $q->{do} eq "get_status" ) {
 		$error = "Could not read MQTT finder data. Available from LoxBerry 3.0 on.";
 	}
 }
+elsif( $q->{do} eq "edgecut" ) {
+	&mqttconnect();
+	my $command = '{"sc":{"ots":{"bc":1,"wtm":0}}}';
+	$response = &mqttpublish($command);
+}
+
 
 #####################################
 # Manage Response and error
@@ -203,7 +209,7 @@ elsif ( defined $error and $error ne "" ) {
 else {
 	print "Status: 501 Not implemented\r\n";
 	print "Content-type: application/json; charset=utf-8\r\n\r\n";
-	$error = "Action ".$q->{action}." unknown";
+	$error = "Action ".$q->{do}." unknown";
 	LOGCRIT "Method not implemented - responding with HTTP 501";
 	print to_json( { error => $error } );
 }
@@ -283,4 +289,3 @@ END {
 		LOGEND;
 	}
 }
-
