@@ -7,6 +7,15 @@ ARGV3=$3 # Third argument is Plugin installation folder
 ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
+echo "<INFO> Copy back existing config files"
+cp -p -v -r /tmp/$ARGV1\_upgrade/config/$ARGV3/* $ARGV5/config/plugins/$ARGV3/ 
+
+#echo "<INFO> Copy back existing log files"
+#cp -p -v -r /tmp/$ARGV1\_upgrade/log/$ARGV3/* $ARGV5/log/plugins/$ARGV3/ 
+
+echo "<INFO> Remove temporary folders"
+rm -r /tmp/$ARGV1\_upgrade
+
 echo "Update config: we now need mqtt->topic from Version 0.6.1 on"
 topic=$(jq -r '.mqtt.topic' $ARGV5/config/plugins/$ARGV3/config.json)
 
@@ -16,14 +25,6 @@ if [ "$topic" = "null" ]; then
 	mv $ARGV5/config/plugins/$ARGV3/config.json.new $ARGV5/config/plugins/$ARGV3/config.json
 fi
 
-echo "<INFO> Copy back existing config files"
-cp -p -v -r /tmp/$ARGV1\_upgrade/config/$ARGV3/* $ARGV5/config/plugins/$ARGV3/ 
-
-#echo "<INFO> Copy back existing log files"
-#cp -p -v -r /tmp/$ARGV1\_upgrade/log/$ARGV3/* $ARGV5/log/plugins/$ARGV3/ 
-
-echo "<INFO> Remove temporary folders"
-rm -r /tmp/$ARGV1\_upgrade
 
 # Exit with Status 0
 exit 0
