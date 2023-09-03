@@ -13,6 +13,6 @@
    ],
    "mqtt" : {
       "url" : "mqtt://loxberry:loxberry@localhost:1883",
-      "subtopics": true
+      "topic": "landroid"
    }
 }

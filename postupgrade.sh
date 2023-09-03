@@ -7,6 +7,15 @@ ARGV3=$3 # Third argument is Plugin installation folder
 ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
+echo "Update config: we now need mqtt->topic from Version 0.6.1 on"
+topic=$(jq -r '.mqtt.topic' $ARGV5/config/plugins/$ARGV3/config.json)
+
+if [ "$topic" = "null" ]; then
+	oldtopic=$(jq -r '.mower[0].topic' $ARGV5/config/plugins/$ARGV3/config.json)
+	jq --arg oldtopic ${oldtopic} '.mqtt.topic = $oldtopic' $ARGV5/config/plugins/$ARGV3/config.json > $ARGV5/config/plugins/$ARGV3/config.json.new
+	mv $ARGV5/config/plugins/$ARGV3/config.json.new $ARGV5/config/plugins/$ARGV3/config.json
+fi
+
 echo "<INFO> Copy back existing config files"
 cp -p -v -r /tmp/$ARGV1\_upgrade/config/$ARGV3/* $ARGV5/config/plugins/$ARGV3/ 
 

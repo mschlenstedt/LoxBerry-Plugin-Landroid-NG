@@ -336,18 +336,12 @@ sub savemqtt
 	my $jsonobj = LoxBerry::JSON->new();
 	my $cfg = $jsonobj->open(filename => $CFGFILE);
 	my $i = 0;
-	$q->{topic} = "landroid" if ( $q->{topic} eq "" ) ;
+	$q->{'topic'} = "landroid" if ( $q->{topic} eq "" ) ;
+	$cfg->{'mqtt'}->{'topic'} = $q->{topic};
 	foreach ( @{$cfg->{'mower'}} ) {
-		$cfg->{'mower'}[$i]->{'topic'} = $q->{topic};
+		$cfg->{'mower'}[$i]->{'topic'} = $q->{topic} . "/" . $cfg->{'mower'}[$i]->{'sn'};
 		$i++;
 	}
-	#my $mqttcred = LoxBerry::IO::mqtt_connectiondetails();
-	#my $cred;
-	#if ( $mqttcred->{brokeruser} && $mqttcred->{brokerpass} ) {
-	#	$cred = "$mqttcred->{brokeruser}" . ":" . $mqttcred->{brokerpass} . "@";
-	#}
-	#my $mqtturl = "mqtt://" . $cred . $mqttcred->{brokeraddress};
-	#$cfg->{'mqtt'}->{'url'} = $mqtturl;
 	$jsonobj->write();
 	
 	# Save mqtt_subscriptions.cfg for MQTT Gateway
@@ -373,19 +367,19 @@ sub savelandroid
 	$cfg->{cloud}->{pwd} = $q->{password};
 	$cfg->{cloud}->{type} = $q->{type};
 	my  @serials = split /\n/, $q->{serials};
-	my $topic;
-	$topic = $cfg->{'mower'}[0]->{'topic'} if ($cfg->{'mower'}[0]->{'topic'});
+	my $topic = $cfg->{'mqtt'}->{'topic'};
 	$topic = "landroid" if (!$topic);
 	my @mowers;
 	foreach ( @serials ) {
 		next if $_ eq "";
 		my %mower = (
 			sn => "$_",
-			topic => "$topic",
+			topic => "$topic" . "/" . $_,
 		);
 		push @mowers, \%mower;
 	}
 	$cfg->{mower} = \@mowers;
+	$cfg->{'mqtt'}->{'topic'} = $topic;
 	$jsonobj->write();
 	return ($errors);
 }
