@@ -549,11 +549,11 @@ function restartBridge() {
 	})
 	.done(function( data ) {
 		console.log( "Restart Bridge Success: ", data );
-		update_pids();
 	})
 	.always(function( data ) {
 		console.log( "Restart Bridge Finished" );
 		nopidrefresh = "0";
+		update_pids();
 	});
 }
 
