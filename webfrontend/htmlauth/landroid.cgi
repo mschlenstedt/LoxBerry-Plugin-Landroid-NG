@@ -69,125 +69,128 @@ LOGSTART "SendCommand";
 # Check what to do
 if( !defined $q->{do} || !defined $q->{serial} ) {
 	$error = "Parameters do and/or serial not defined";
-}
-elsif( $q->{do} eq "start" ) {
-	&mqttconnect();
-	my $command = '{"cmd":1}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "pause" ) {
-	&mqttconnect();
-	my $command = '{"cmd":2}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "stop" ) {
-	&mqttconnect();
-	my $command = '{"cmd":3}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "set_lock" ) {
-	&mqttconnect();
-	my $command = '{"cmd":5}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "set_unlock" ) {
-	&mqttconnect();
-	my $command = '{"cmd":6}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "set_reboot" ) {
-	&mqttconnect();
-	my $command = '{"cmd":7}';
-	$response = &mqttpublish($command);
-}
-elsif( $q->{do} eq "set_areacfg" ) {
-	my @values = split /,/, $q->{value};
-	my $i = 0;
-	foreach ( @values ) {
-		$i++;
-		if ( !looks_like_number($_) || $_ < 0 || $_ > 500  ) {
-			$error = "Parameter value not defined or not a number or range not valid";
-		}
-	}
-	if ($i ne 4) {
-		$error = "Parameter value not defined or not a number or range not valid";
-	}
-	if ($error eq "") {
+} else {
+
+	# Load topic
+	my $cfgfile = $lbpconfigdir . "/config.json";
+	my $jsonobj = LoxBerry::JSON->new();
+	my $cfg = $jsonobj->open(filename => $cfgfile);
+	$topic = $cfg->{'mqtt'}->{'topic'};
+	$topic = "landroid" if (!$topic);
+
+	if( $q->{do} eq "start" ) {
 		&mqttconnect();
-		my $command = '{"mz": [ ' . $q->{value} . ' ]}';
+		my $command = '{"cmd":1}';
 		$response = &mqttpublish($command);
 	}
-}
-elsif( $q->{do} eq "set_startsequences" ) {
-	my @values = split /,/, $q->{value};
-	my $i = 0;
-	foreach ( @values ) {
-		$i++;
-		if ( !looks_like_number($_) || $_ < 0 || $_ > 3  ) {
-			$error = "Parameter value not defined or not a number or range not valid";
-		}
-	}
-	if ($i ne 10) {
-		$error = "Parameter value not defined or not a number or range not valid";
-	}
-	if ($error eq "") {
+	elsif( $q->{do} eq "pause" ) {
 		&mqttconnect();
-		my $command = '{"mzv": [ ' . $q->{value} . ' ]}';
+		my $command = '{"cmd":2}';
 		$response = &mqttpublish($command);
 	}
-}
-elsif( $q->{do} eq "set_partymode" ) {
-	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 2  ) {
-		$error = "Parameter value not defined or not a number or range not valid";
-	} else {
+        elsif( $q->{do} eq "stop" ) {
 		&mqttconnect();
+		my $command = '{"cmd":3}';
+		$response = &mqttpublish($command);
+	}
+	elsif( $q->{do} eq "set_lock" ) {
+		&mqttconnect();
+		my $command = '{"cmd":5}';
+		$response = &mqttpublish($command);
+	}
+	elsif( $q->{do} eq "set_unlock" ) {
+        	&mqttconnect();
+		my $command = '{"cmd":6}';
+		$response = &mqttpublish($command);
+	}
+	elsif( $q->{do} eq "set_reboot" ) {
+		&mqttconnect();
+		my $command = '{"cmd":7}';
+		$response = &mqttpublish($command);
+	}
+	elsif( $q->{do} eq "set_areacfg" ) {
+		my @values = split /,/, $q->{value};
+        	my $i = 0;
+		foreach ( @values ) {
+			$i++;
+			if ( !looks_like_number($_) || $_ < 0 || $_ > 500  ) {
+				$error = "Parameter value not defined or not a number or range not valid";
+			}
+		}
+		if ($i ne 4) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		}
+		if ($error eq "") {
+        		&mqttconnect();
+			my $command = '{"mz": [ ' . $q->{value} . ' ]}';
+			$response = &mqttpublish($command);
+		}
+	}
+	elsif( $q->{do} eq "set_startsequences" ) {
+		my @values = split /,/, $q->{value};
+		my $i = 0;
+		foreach ( @values ) {
+			$i++;
+			if ( !looks_like_number($_) || $_ < 0 || $_ > 3  ) {
+        			$error = "Parameter value not defined or not a number or range not valid";
+			}
+		}
+		if ($i ne 10) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		}
+		if ($error eq "") {
+			&mqttconnect();
+			my $command = '{"mzv": [ ' . $q->{value} . ' ]}';
+			$response = &mqttpublish($command);
+		}
+        }
+	elsif( $q->{do} eq "set_partymode" ) {
+		if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 2  ) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		} else {
+			&mqttconnect();
 		$q->{value} = $q->{value} * 1; # Convert to numeric
 		my $command = '{"sc": { "m":' . $q->{value} . '}}';
 		$response = &mqttpublish($command);
+		}
 	}
-}
-elsif( $q->{do} eq "set_partymodetime" ) {
-	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 1440  ) {
-		$error = "Parameter value not defined or not a number or range not valid";
-	} else {
+	elsif( $q->{do} eq "set_partymodetime" ) {
+		if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 1440  ) {
+			$error = "Parameter value not defined or not a number or range not valid";
+        	} else {
+			&mqttconnect();
+			$q->{value} = $q->{value} * 1; # Convert to numeric
+			my $command = '{"sc": { "distm":' . $q->{value} . '}}';
+			$response = &mqttpublish($command);
+		}
+	}
+	elsif( $q->{do} eq "set_raindelay" ) {
+		if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 300  ) {
+			$error = "Parameter value not defined or not a number or range not valid";
+		} else {
+        		&mqttconnect();
+			$q->{value} = $q->{value} * 1; # Convert to numeric
+			my $command = '{"rd":' . $q->{value} . '}';
+			$response = &mqttpublish($command);
+		}
+	}
+	elsif( $q->{do} eq "get_status" ) {
+		my $statusfile = "/dev/shm/mqttfinder.json";
+		my $statusjsonobj = LoxBerry::JSON->new();
+		my $status = $statusjsonobj->open(filename => $statusfile);
+		if (-e "/dev/shm/mqttfinder.json") {
+			$responseraw = $status->{'incoming'}->{$topic . "/" . $q->{serial} . "/mowerdata"}->{'p'};
+		}
+		if (!$responseraw) {
+			$error = "Could not read MQTT finder data. Available from LoxBerry 3.0 on.";
+		}
+	}
+        elsif( $q->{do} eq "edgecut" ) {
 		&mqttconnect();
-		$q->{value} = $q->{value} * 1; # Convert to numeric
-		my $command = '{"sc": { "distm":' . $q->{value} . '}}';
+		my $command = '{"sc":{"ots":{"bc":1,"wtm":0}}}';
 		$response = &mqttpublish($command);
 	}
-}
-elsif( $q->{do} eq "set_raindelay" ) {
-	if ( !defined $q->{value} || !looks_like_number($q->{value}) || $q->{value} < 0 || $q->{value} > 300  ) {
-		$error = "Parameter value not defined or not a number or range not valid";
-	} else {
-		&mqttconnect();
-		$q->{value} = $q->{value} * 1; # Convert to numeric
-		my $command = '{"rd":' . $q->{value} . '}';
-		$response = &mqttpublish($command);
-	}
-}
-elsif( $q->{do} eq "get_status" ) {
-	my $statusfile = "/dev/shm/mqttfinder.json";
-	my $statusjsonobj = LoxBerry::JSON->new();
-	my $status = $statusjsonobj->open(filename => $statusfile);
-	if (-e "/dev/shm/mqttfinder.json") {
-		my $cfgfile = $lbpconfigdir . "/config.json";
-		my $jsonobj = LoxBerry::JSON->new();
-		my $cfg = $jsonobj->open(filename => $cfgfile);
-		$topic = $cfg->{'mower'}[0]->{'topic'};
-		$topic = "landroid" if (!$topic);
-		$responseraw = $status->{'incoming'}->{$topic . "/" . $q->{serial} . "/mowerdata"}->{'p'};
-	}
-	if (!$responseraw) {
-		$error = "Could not read MQTT finder data. Available from LoxBerry 3.0 on.";
-	}
-}
-elsif( $q->{do} eq "edgecut" ) {
-	&mqttconnect();
-	my $command = '{"sc":{"ots":{"bc":1,"wtm":0}}}';
-	$response = &mqttpublish($command);
-}
-
+}	
 
 #####################################
 # Manage Response and error
@@ -265,12 +268,6 @@ sub mqttpublish
 
 	my ($command) = @_;
 	my $resp;
-
-	my $cfgfile = $lbpconfigdir . "/config.json";
-	my $jsonobj = LoxBerry::JSON->new();
-	my $cfg = $jsonobj->open(filename => $cfgfile);
-	$topic = $cfg->{'mower'}[0]->{'topic'};
-	$topic = "landroid" if (!$topic);
 
 	# Publish
 	eval {

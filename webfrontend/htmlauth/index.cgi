@@ -85,9 +85,17 @@ if( $q->{ajax} ) {
 		print JSON->new->canonical(1)->encode(\%response);
 		exit();
 	}
+	
+	# GetPIDs
+	if( $q->{ajax} eq "getpids" ) {
+		LOGINF "P$$ getpids: getpids was called.";
+		pids();
+		$response{pids} = \%pids;
+		print JSON->new->canonical(1)->encode(\%response);
+	}
 
 	# All other requests need to send the SecPIN
-	if($ENV{REQUEST_METHOD}) {
+	if($ENV{REQUEST_METHOD} && $q->{ajax} ne "getpids") {
 		LOGINF "P$$ Remote request - checking SecurePIN";
 		my $seccheck = LoxBerry::System::check_securepin($q->{secpin});
 		if($seccheck) {
@@ -150,14 +158,6 @@ if( $q->{ajax} ) {
 			print $content;
 		}
 		print JSON->new->canonical(1)->encode(\%response) if !$content;
-	}
-
-	# GetPIDs
-	if( $q->{ajax} eq "getpids" ) {
-		LOGINF "P$$ getpids: getpids was called.";
-		pids();
-		$response{pids} = \%pids;
-		print JSON->new->canonical(1)->encode(\%response);
 	}
 
 	# GetVersions
