@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Vars
-repo="nefiertsrebliS/mqtt-landroid-bridge"
+repo="mschlenstedt/mqtt-landroid-bridge"
 
 # Calculate vars
 repourl="https://github.com/$repo.git"
