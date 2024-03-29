@@ -46,7 +46,7 @@ PBIN=$LBPBIN/$PDIR
  
 echo "<INFO> Installing latest Worx Bridge"
 
-repo="nefiertsrebliS/mqtt-landroid-bridge"
+repo="mschlenstedt/mqtt-landroid-bridge"
 
 repourl="https://github.com/$repo.git"
 rm -rf $PDATA/mqtt-landroid-bridge
